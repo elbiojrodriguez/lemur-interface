@@ -2,48 +2,23 @@ const rtcCore = new WebRTCCore('https://lemur-signal.onrender.com');
 const myId = crypto.randomUUID();
 document.getElementById('myId').textContent = myId;
 rtcCore.initialize(myId);
-rtcCore.setupAnswerHandlers();
+rtcCore.setupSocketHandlers();
 
-const remoteVideo = document.getElementById('remoteVideo');
 const localVideo = document.getElementById('localVideo');
-const aceitarBtn = document.getElementById('aceitarBtn');
-let minhaStream = null;
+const remoteVideo = document.getElementById('remoteVideo');
+const acceptBtn = document.getElementById('acceptBtn');
 
-// Ativa câmera automaticamente ao aceitar chamada
-async function abrirMinhaCamera() {
-  try {
-    minhaStream = await navigator.mediaDevices.getUserMedia({ 
-      video: true, 
-      audio: true 
-    });
-    localVideo.srcObject = minhaStream;
-    return minhaStream;
-  } catch (err) {
-    console.error('Erro ao acessar câmera:', err);
-    throw err;
-  }
-}
-
-rtcCore.onIncomingCall = async (from, offer) => {
-  aceitarBtn.style.display = 'inline-block';
-  aceitarBtn.onclick = async () => {
-    try {
-      // 1. Ativa câmera local automaticamente
-      const stream = await abrirMinhaCamera();
-      
-      // 2. Aceita chamada com a stream local
-      await rtcCore.acceptCall(from, offer, stream);
-      
-      // 3. Mostra feedback visual
-      aceitarBtn.textContent = 'Chamada Ativa';
-      aceitarBtn.disabled = true;
-    } catch (error) {
-      console.error('Erro ao aceitar chamada:', error);
-      alert('Falha ao aceitar chamada: ' + error.message);
-    }
+// MODIFICADO para ativar câmera automaticamente ao receber chamada
+rtcCore.onIncomingCall = (offer) => {
+  acceptBtn.style.display = 'block';
+  acceptBtn.onclick = () => {
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then(localStream => {
+        localVideo.srcObject = localStream;
+        rtcCore.handleIncomingCall(offer, (remoteStream) => {
+          remoteVideo.srcObject = remoteStream;
+        });
+        acceptBtn.disabled = true;
+      });
   };
-};
-
-rtcCore.onRemoteStream = stream => {
-  remoteVideo.srcObject = stream;
 };
