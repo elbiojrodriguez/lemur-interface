@@ -20,9 +20,9 @@
   <button onclick="abrirMinhaCamera()">Mostrar minha câmera</button>
   <button id="chamarBtn">Chamar</button>
 
-  <script src="https://lemurrtc.onrender.com/socket.io/socket.io.js"></script>
+  <script src="https://lemur-signal.onrender.com/socket.io/socket.io.js"></script>
   <script>
-    const socket = io('https://lemurrtc.onrender.com');
+    const socket = io('https://lemur-signal.onrender.com');
     const myId = crypto.randomUUID();
     document.getElementById('myId').textContent = myId;
     socket.emit('register', myId);
