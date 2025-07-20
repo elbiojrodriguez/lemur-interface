@@ -8,7 +8,11 @@ const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
 const callBtn = document.getElementById('callBtn');
 
-// IDÊNTICO ao seu original
+// Configura o callback para stream remoto
+rtcCore.setRemoteStreamCallback((stream) => {
+  remoteVideo.srcObject = stream;
+});
+
 function startLocalCamera() {
   navigator.mediaDevices.getUserMedia({ video: true, audio: true })
     .then(stream => {
@@ -23,10 +27,4 @@ function startLocalCamera() {
     });
 }
 
-// MANTIDO do original
-rtcCore.onRemoteStream = (stream) => {
-  remoteVideo.srcObject = stream;
-};
-
-// Inicia câmera automaticamente
 startLocalCamera();
