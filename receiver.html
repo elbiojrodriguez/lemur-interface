@@ -89,6 +89,11 @@
         }
       };
 
+      if (!offer || !offer.type || !offer.sdp) {
+        console.error('🚫 Oferta inválida:', offer);
+        return;
+      }
+
       peer.setRemoteDescription(new RTCSessionDescription(offer))
         .then(() => peer.createAnswer())
         .then(answer => peer.setLocalDescription(answer))
