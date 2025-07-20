@@ -1,35 +1,37 @@
 const rtcCore = new WebRTCCore('https://lemur-signal.onrender.com');
 const localVideo = document.getElementById('localVideo');
-const previewVideo = document.getElementById('myCameraPreview');
-const chamarBtn = document.getElementById('chamarBtn');
+const remoteVideo = document.getElementById('remoteVideo');
+const callBtn = document.getElementById('callBtn');
 const targetInput = document.getElementById('targetId');
 
 // Inicialização
 document.getElementById('myId').textContent = rtcCore.initialize();
 
-// Controles da interface
-function abrirMinhaCamera() {
-  navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-    .then(stream => {
-      previewVideo.srcObject = stream;
-    })
-    .catch(console.error);
-}
-
-chamarBtn.onclick = () => {
-  const targetId = targetInput.value.trim();
-  if (!targetId) return alert('Insira o ID do dono');
-  
-  rtcCore.startCall(targetId)
-    .then(() => {
-      localVideo.srcObject = rtcCore.localStream;
-    })
-    .catch(error => {
-      alert(`Falha ao chamar: ${error.message}`);
-    });
+// Configura handlers
+rtcCore.onRemoteStream = stream => {
+  remoteVideo.srcObject = stream;
 };
 
-// Configura handlers do core
-rtcCore.onRemoteStream = stream => {
-  localVideo.srcObject = stream;
+// Controles
+function startLocalCamera() {
+  navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    .then(stream => {
+      localVideo.srcObject = stream;
+      rtcCore.localStream = stream;
+    })
+    .catch(err => {
+      console.error("Erro ao acessar câmera:", err);
+      alert("Não foi possível acessar a câmera/microfone");
+    });
+}
+
+callBtn.onclick = () => {
+  const targetId = targetInput.value.trim();
+  if (!targetId) return alert("Digite o ID do Dono");
+  
+  rtcCore.startCall(targetId)
+    .catch(err => {
+      console.error("Erro na chamada:", err);
+      alert("Falha ao iniciar chamada");
+    });
 };
