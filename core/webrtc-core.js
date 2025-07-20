@@ -3,23 +3,30 @@ class WebRTCCore {
     this.socket = io(socketUrl);
     this.peer = null;
     this.localStream = null;
+    this.remoteStreamCallback = null; // Adicionado para gerenciar callback
   }
 
   initialize(userId) {
     this.socket.emit('register', userId);
   }
 
-  // IDÊNTICO ao seu original funcionando
   startCall(targetId, stream) {
     this.localStream = stream;
     this.peer = new RTCPeerConnection({ 
       iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] 
     });
 
-    // ADICIONA AMBAS TRACKS (áudio e vídeo)
+    // Adiciona tracks locais
     stream.getTracks().forEach(track => {
       this.peer.addTrack(track, stream);
     });
+
+    // Configura para receber tracks remotas
+    this.peer.ontrack = (event) => {
+      if (this.remoteStreamCallback) {
+        this.remoteStreamCallback(event.streams[0]);
+      }
+    };
 
     this.peer.onicecandidate = (event) => {
       if (event.candidate) {
@@ -40,14 +47,21 @@ class WebRTCCore {
       });
   }
 
-  // MANTIDO do seu original
-  handleIncomingCall(offer, callback) {
+  handleIncomingCall(offer, localStream, callback) { // Modificado para receber localStream
     this.peer = new RTCPeerConnection({
       iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
     });
 
+    // Adiciona tracks locais
+    if (localStream) {
+      localStream.getTracks().forEach(track => {
+        this.peer.addTrack(track, localStream);
+      });
+    }
+
+    // Configura para receber tracks remotas
     this.peer.ontrack = (event) => {
-      callback(event.streams[0]); // Chama a função quando recebe o stream
+      callback(event.streams[0]);
     };
 
     this.peer.onicecandidate = (event) => {
@@ -70,7 +84,6 @@ class WebRTCCore {
       });
   }
 
-  // MÉTODOS ORIGINAIS PRESERVADOS
   setupSocketHandlers() {
     this.socket.on('acceptAnswer', (data) => {
       if (this.peer) {
@@ -90,5 +103,10 @@ class WebRTCCore {
         this.onIncomingCall(data.offer);
       }
     });
+  }
+
+  // Novo método para atualizar o callback de stream remoto
+  setRemoteStreamCallback(callback) {
+    this.remoteStreamCallback = callback;
   }
 }
