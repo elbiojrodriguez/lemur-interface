@@ -9,6 +9,7 @@ const previewVideo = document.getElementById('myCameraPreview');
 const aceitarBtn = document.getElementById('aceitarBtn');
 let minhaStream = null;
 
+// Função para ativar câmera local
 function abrirMinhaCamera() {
   navigator.mediaDevices.getUserMedia({ video: true, audio: true })
     .then(stream => {
@@ -17,25 +18,23 @@ function abrirMinhaCamera() {
     })
     .catch(err => {
       console.error('Erro ao abrir câmera local:', err);
+      alert('Não foi possível acessar a câmera/microfone');
     });
 }
 
+// Handler para chamada recebida
 rtcCore.onIncomingCall = (from, offer) => {
-  aceitarBtn.classList.remove('hidden');
+  aceitarBtn.style.display = 'inline-block';
   aceitarBtn.onclick = () => {
-    rtcCore.acceptCall(from, offer);
-
-    const checkPeerReady = setInterval(() => {
-      if (rtcCore.peer && minhaStream) {
-        minhaStream.getTracks().forEach(track => {
-          rtcCore.peer.addTrack(track, minhaStream);
-        });
-        clearInterval(checkPeerReady);
-      }
-    }, 100);
+    if (!minhaStream) {
+      alert('Ative sua câmera primeiro!');
+      return;
+    }
+    rtcCore.acceptCall(from, offer, minhaStream);
   };
 };
 
+// Handler para stream remoto recebido
 rtcCore.onRemoteStream = stream => {
   remoteVideo.srcObject = stream;
 };
