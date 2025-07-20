@@ -12,7 +12,7 @@ const aceitarBtn = document.getElementById('aceitarBtn');
 function abrirMinhaCamera() {
   navigator.mediaDevices.getUserMedia({ video: true, audio: false })
     .then(stream => {
-      document.getElementById('myCameraPreview').srcObject = stream;
+      remoteVideo.srcObject = stream;
     })
     .catch(err => {
       console.error('Erro ao abrir câmera local:', err);
