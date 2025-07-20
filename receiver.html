@@ -4,10 +4,34 @@
   <meta charset="UTF-8">
   <title>Dono (Receiver)</title>
   <style>
-    body { background: #121212; color: white; text-align: center; font-family: sans-serif; }
-    video { width: 80%; border: 2px solid #00ffaa; border-radius: 8px; margin-top: 20px; }
-    #myCameraPreview { width: 30%; border: 2px solid #444; border-radius: 6px; margin-top: 15px; }
-    button { padding: 10px 20px; margin-top: 10px; background-color: #00ffaa; border: none; border-radius: 6px; font-size: 16px; color: black; cursor: pointer; }
+    body {
+      background: #121212;
+      color: white;
+      text-align: center;
+      font-family: sans-serif;
+    }
+    video {
+      width: 80%;
+      border: 2px solid #00ffaa;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    #myCameraPreview {
+      width: 30%;
+      border: 2px solid #444;
+      border-radius: 6px;
+      margin-top: 15px;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 10px;
+      background-color: #00ffaa;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      color: black;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -18,9 +42,9 @@
   <button onclick="abrirMinhaCamera()">Mostrar minha câmera</button>
   <button id="aceitarBtn" style="display:none;">Aceitar chamada</button>
 
-  <script src="https://lemurrtc.onrender.com/socket.io/socket.io.js"></script>
+  <script src="https://lemur-signal.onrender.com/socket.io/socket.io.js"></script>
   <script>
-    const socket = io('https://lemurrtc.onrender.com');
+    const socket = io('https://lemur-signal.onrender.com');
     const myId = crypto.randomUUID();
     document.getElementById('myId').textContent = myId;
     socket.emit('register', myId);
@@ -38,7 +62,9 @@
     });
 
     aceitarBtn.onclick = () => {
-      peer = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+      peer = new RTCPeerConnection({
+        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+      });
 
       peer.ontrack = event => {
         remoteVideo.srcObject = event.streams[0];
@@ -46,7 +72,10 @@
 
       peer.onicecandidate = event => {
         if (event.candidate) {
-          socket.emit('ice-candidate', { to: callerId, candidate: event.candidate });
+          socket.emit('ice-candidate', {
+            to: callerId,
+            candidate: event.candidate
+          });
         }
       };
 
@@ -54,7 +83,10 @@
         .then(() => peer.createAnswer())
         .then(answer => peer.setLocalDescription(answer))
         .then(() => {
-          socket.emit('answer', { to: callerId, answer: peer.localDescription });
+          socket.emit('answer', {
+            to: callerId,
+            answer: peer.localDescription
+          });
         });
     };
 
