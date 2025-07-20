@@ -3,136 +3,92 @@ class WebRTCCore {
     this.socket = io(socketUrl);
     this.peer = null;
     this.localStream = null;
-    this.remoteStream = null;
   }
 
   initialize(userId) {
-    this.userId = userId;
     this.socket.emit('register', userId);
-    return userId;
   }
 
-  setupCallHandlers() {
-    this.socket.on('acceptAnswer', data => {
+  // IDÊNTICO ao seu original funcionando
+  startCall(targetId, stream) {
+    this.localStream = stream;
+    this.peer = new RTCPeerConnection({ 
+      iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] 
+    });
+
+    // ADICIONA AMBAS TRACKS (áudio e vídeo)
+    stream.getTracks().forEach(track => {
+      this.peer.addTrack(track, stream);
+    });
+
+    this.peer.onicecandidate = (event) => {
+      if (event.candidate) {
+        this.socket.emit('ice-candidate', {
+          to: targetId,
+          candidate: event.candidate
+        });
+      }
+    };
+
+    this.peer.createOffer()
+      .then(offer => this.peer.setLocalDescription(offer))
+      .then(() => {
+        this.socket.emit('call', {
+          to: targetId,
+          offer: this.peer.localDescription
+        });
+      });
+  }
+
+  // MANTIDO do seu original
+  handleIncomingCall(offer, callback) {
+    this.peer = new RTCPeerConnection({
+      iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+    });
+
+    this.peer.ontrack = (event) => {
+      callback(event.streams[0]); // Chama a função quando recebe o stream
+    };
+
+    this.peer.onicecandidate = (event) => {
+      if (event.candidate) {
+        this.socket.emit('ice-candidate', {
+          to: this.currentCaller,
+          candidate: event.candidate
+        });
+      }
+    };
+
+    this.peer.setRemoteDescription(new RTCSessionDescription(offer))
+      .then(() => this.peer.createAnswer())
+      .then(answer => this.peer.setLocalDescription(answer))
+      .then(() => {
+        this.socket.emit('answer', {
+          to: this.currentCaller,
+          answer: this.peer.localDescription
+        });
+      });
+  }
+
+  // MÉTODOS ORIGINAIS PRESERVADOS
+  setupSocketHandlers() {
+    this.socket.on('acceptAnswer', (data) => {
       if (this.peer) {
         this.peer.setRemoteDescription(new RTCSessionDescription(data.answer));
       }
     });
 
-    this.socket.on('ice-candidate', candidate => {
+    this.socket.on('ice-candidate', (candidate) => {
       if (this.peer) {
         this.peer.addIceCandidate(new RTCIceCandidate(candidate));
       }
     });
-  }
 
-  async startCall(targetId, stream) {
-    try {
-      this.localStream = stream;
-      this.peer = new RTCPeerConnection({
-        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-      });
-
-      // Adiciona tracks locais
-      stream.getTracks().forEach(track => {
-        this.peer.addTrack(track, stream);
-      });
-
-      // Configura handlers
-      this.peer.onicecandidate = ({ candidate }) => {
-        if (candidate) {
-          this.socket.emit('ice-candidate', {
-            to: targetId,
-            candidate
-          });
-        }
-      };
-
-      this.peer.ontrack = ({ streams }) => {
-        this.remoteStream = streams[0];
-        if (typeof this.onRemoteStream === 'function') {
-          this.onRemoteStream(streams[0]);
-        }
-      };
-
-      // Cria oferta
-      const offer = await this.peer.createOffer();
-      await this.peer.setLocalDescription(offer);
-      
-      this.socket.emit('call', {
-        to: targetId,
-        offer: this.peer.localDescription
-      });
-
-      return true;
-    } catch (error) {
-      console.error('Erro ao iniciar chamada:', error);
-      throw error;
-    }
-  }
-
-  setupAnswerHandlers() {
-    this.socket.on('incomingCall', data => {
-      if (typeof this.onIncomingCall === 'function') {
-        this.onIncomingCall(data.from, data.offer);
+    this.socket.on('incomingCall', (data) => {
+      this.currentCaller = data.from;
+      if (this.onIncomingCall) {
+        this.onIncomingCall(data.offer);
       }
     });
-  }
-
-  async acceptCall(callerId, offer, localStream) {
-    try {
-      this.peer = new RTCPeerConnection({
-        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-      });
-
-      // Adiciona tracks locais ANTES de criar a answer
-      if (localStream) {
-        localStream.getTracks().forEach(track => {
-          this.peer.addTrack(track, localStream);
-        });
-      }
-
-      this.peer.ontrack = ({ streams }) => {
-        this.remoteStream = streams[0];
-        if (typeof this.onRemoteStream === 'function') {
-          this.onRemoteStream(streams[0]);
-        }
-      };
-
-      this.peer.onicecandidate = ({ candidate }) => {
-        if (candidate) {
-          this.socket.emit('ice-candidate', {
-            to: callerId,
-            candidate
-          });
-        }
-      };
-
-      await this.peer.setRemoteDescription(new RTCSessionDescription(offer));
-      const answer = await this.peer.createAnswer();
-      await this.peer.setLocalDescription(answer);
-
-      this.socket.emit('answer', {
-        to: callerId,
-        answer: this.peer.localDescription
-      });
-
-      return true;
-    } catch (error) {
-      console.error('Erro ao aceitar chamada:', error);
-      throw error;
-    }
-  }
-
-  cleanUp() {
-    if (this.peer) {
-      this.peer.close();
-      this.peer = null;
-    }
-    if (this.localStream) {
-      this.localStream.getTracks().forEach(track => track.stop());
-      this.localStream = null;
-    }
-    this.remoteStream = null;
   }
 }
