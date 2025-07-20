@@ -8,11 +8,11 @@ rtcCore.setupAnswerHandlers();
 const remoteVideo = document.getElementById('remoteVideo');
 const aceitarBtn = document.getElementById('aceitarBtn');
 
-// Funções IGUAIS à versão original
+// Função atualizada conforme solicitação
 function abrirMinhaCamera() {
   navigator.mediaDevices.getUserMedia({ video: true, audio: false })
     .then(stream => {
-      remoteVideo.srcObject = stream;
+      document.getElementById('myCameraPreview').srcObject = stream;
     })
     .catch(err => {
       console.error('Erro ao abrir câmera local:', err);
