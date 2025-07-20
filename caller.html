@@ -57,7 +57,6 @@
     const chamarBtn = document.getElementById('chamarBtn');
     const targetInput = document.getElementById('targetId');
 
-    let localStream;
     let peer;
 
     function abrirMinhaCamera() {
@@ -66,15 +65,20 @@
           previewVideo.srcObject = stream;
         })
         .catch(err => {
-          console.error('Erro ao abrir câmera local:', err);
+          console.error('🚫 Erro ao abrir câmera local:', err);
         });
     }
 
     chamarBtn.onclick = () => {
+      const targetId = targetInput.value.trim();
+      if (!targetId) {
+        alert('⚠️ Cole o ID do dono para iniciar a chamada');
+        return;
+      }
+
       navigator.mediaDevices.getUserMedia({ video: true, audio: true })
         .then(stream => {
           localVideo.srcObject = stream;
-          localStream = stream;
 
           peer = new RTCPeerConnection({
             iceServers: [
@@ -91,8 +95,9 @@
 
           peer.onicecandidate = event => {
             if (event.candidate) {
+              console.log('📨 Enviando ICE para receptor');
               socket.emit('ice-candidate', {
-                to: targetInput.value,
+                to: targetId,
                 candidate: event.candidate
               });
             }
@@ -101,20 +106,31 @@
           peer.createOffer()
             .then(offer => peer.setLocalDescription(offer))
             .then(() => {
+              console.log('📡 Enviando offer para receptor');
               socket.emit('call', {
-                to: targetInput.value,
+                to: targetId,
                 offer: peer.localDescription
               });
+            })
+            .catch(err => {
+              console.error('🚫 Erro ao criar offer:', err);
             });
+        })
+        .catch(err => {
+          console.error('🚫 Erro ao acessar câmera e microfone:', err);
         });
     };
 
     socket.on('acceptAnswer', data => {
+      if (!peer) return;
+      console.log('✅ Resposta recebida do dono');
       peer.setRemoteDescription(new RTCSessionDescription(data.answer));
     });
 
     socket.on('ice-candidate', candidate => {
-      if (peer) peer.addIceCandidate(new RTCIceCandidate(candidate));
+      if (!peer) return;
+      console.log('📨 ICE recebido do receptor');
+      peer.addIceCandidate(new RTCIceCandidate(candidate));
     });
   </script>
 </body>
