@@ -23,19 +23,16 @@ function abrirMinhaCamera() {
 rtcCore.onIncomingCall = (from, offer) => {
   aceitarBtn.classList.remove('hidden');
   aceitarBtn.onclick = () => {
-    if (!minhaStream) {
-      navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-        .then(stream => {
-          previewVideo.srcObject = stream;
-          minhaStream = stream;
-          rtcCore.acceptCall(from, offer, minhaStream);
-        })
-        .catch(err => {
-          console.error('Erro ao acessar câmera:', err);
+    rtcCore.acceptCall(from, offer);
+
+    const checkPeerReady = setInterval(() => {
+      if (rtcCore.peer && minhaStream) {
+        minhaStream.getTracks().forEach(track => {
+          rtcCore.peer.addTrack(track, minhaStream);
         });
-    } else {
-      rtcCore.acceptCall(from, offer, minhaStream);
-    }
+        clearInterval(checkPeerReady);
+      }
+    }, 100);
   };
 };
 
