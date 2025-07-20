@@ -3,9 +3,11 @@ class WebRTCCore {
     this.socket = io(socketUrl);
     this.peer = null;
     this.localStream = null;
+    this.currentCall = null;
   }
 
   initialize(userId) {
+    this.userId = userId;
     this.socket.emit('register', userId);
   }
 
@@ -24,20 +26,27 @@ class WebRTCCore {
   }
 
   startCall(targetId, stream) {
+    this.currentCall = targetId;
     this.localStream = stream;
-    this.peer = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+    this.peer = new RTCPeerConnection({ 
+      iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+    });
 
-    stream.getTracks().forEach(track => this.peer.addTrack(track, stream));
+    // Adiciona tracks locais
+    stream.getTracks().forEach(track => 
+      this.peer.addTrack(track, stream));
 
-    this.peer.onicecandidate = event => {
-      if (event.candidate) {
+    // Configura handlers
+    this.peer.onicecandidate = ({ candidate }) => {
+      if (candidate) {
         this.socket.emit('ice-candidate', { 
           to: targetId, 
-          candidate: event.candidate 
+          candidate 
         });
       }
     };
 
+    // Cria oferta
     this.peer.createOffer()
       .then(offer => this.peer.setLocalDescription(offer))
       .then(() => {
@@ -45,6 +54,10 @@ class WebRTCCore {
           to: targetId, 
           offer: this.peer.localDescription 
         });
+      })
+      .catch(error => {
+        console.error('Erro ao iniciar chamada:', error);
+        this.cleanUp();
       });
   }
 
@@ -56,20 +69,29 @@ class WebRTCCore {
     });
   }
 
-  acceptCall(callerId, offer) {
-    this.peer = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+  acceptCall(callerId, offer, localStream = null) {
+    this.currentCall = callerId;
+    this.peer = new RTCPeerConnection({
+      iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+    });
 
-    this.peer.ontrack = event => {
+    // Adiciona stream local se existir
+    if (localStream) {
+      localStream.getTracks().forEach(track => 
+        this.peer.addTrack(track, localStream));
+    }
+
+    this.peer.ontrack = ({ streams }) => {
       if (typeof this.onRemoteStream === 'function') {
-        this.onRemoteStream(event.streams[0]);
+        this.onRemoteStream(streams[0]);
       }
     };
 
-    this.peer.onicecandidate = event => {
-      if (event.candidate) {
-        this.socket.emit('ice-candidate', { 
-          to: callerId, 
-          candidate: event.candidate 
+    this.peer.onicecandidate = ({ candidate }) => {
+      if (candidate) {
+        this.socket.emit('ice-candidate', {
+          to: callerId,
+          candidate
         });
       }
     };
@@ -78,10 +100,22 @@ class WebRTCCore {
       .then(() => this.peer.createAnswer())
       .then(answer => this.peer.setLocalDescription(answer))
       .then(() => {
-        this.socket.emit('answer', { 
-          to: callerId, 
-          answer: this.peer.localDescription 
+        this.socket.emit('answer', {
+          to: callerId,
+          answer: this.peer.localDescription
         });
+      })
+      .catch(error => {
+        console.error('Erro ao aceitar chamada:', error);
+        this.cleanUp();
       });
+  }
+
+  cleanUp() {
+    if (this.peer) {
+      this.peer.close();
+      this.peer = null;
+    }
+    this.currentCall = null;
   }
 }
