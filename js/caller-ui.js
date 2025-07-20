@@ -2,48 +2,31 @@ const rtcCore = new WebRTCCore('https://lemur-signal.onrender.com');
 const myId = crypto.randomUUID();
 document.getElementById('myId').textContent = myId;
 rtcCore.initialize(myId);
-rtcCore.setupCallHandlers();
+rtcCore.setupSocketHandlers();
 
-const remoteVideo = document.getElementById('remoteVideo');
 const localVideo = document.getElementById('localVideo');
-const chamarBtn = document.getElementById('chamarBtn');
-const targetInput = document.getElementById('targetId');
+const remoteVideo = document.getElementById('remoteVideo');
+const callBtn = document.getElementById('callBtn');
 
-// Ativa câmera local
-async function abrirMinhaCamera() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ 
-      video: true, 
-      audio: true 
+// IDÊNTICO ao seu original
+function startLocalCamera() {
+  navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    .then(stream => {
+      localVideo.srcObject = stream;
+      callBtn.onclick = () => {
+        const targetId = document.getElementById('targetId').value;
+        if (targetId) {
+          rtcCore.startCall(targetId, stream);
+          callBtn.disabled = true;
+        }
+      };
     });
-    localVideo.srcObject = stream;
-    return stream;
-  } catch (err) {
-    console.error('Erro ao acessar câmera:', err);
-    throw err;
-  }
 }
 
-chamarBtn.onclick = async () => {
-  const targetId = targetInput.value.trim();
-  if (!targetId) return alert('Digite o ID do dono');
-  
-  try {
-    // 1. Ativa câmera local
-    const stream = await abrirMinhaCamera();
-    
-    // 2. Inicia chamada
-    await rtcCore.startCall(targetId, stream);
-    
-    // 3. Atualiza UI
-    chamarBtn.textContent = 'Chamando...';
-    chamarBtn.disabled = true;
-  } catch (error) {
-    console.error('Erro na chamada:', error);
-    alert('Falha ao iniciar chamada: ' + error.message);
-  }
-};
-
-rtcCore.onRemoteStream = stream => {
+// MANTIDO do original
+rtcCore.onRemoteStream = (stream) => {
   remoteVideo.srcObject = stream;
 };
+
+// Inicia câmera automaticamente
+startLocalCamera();
