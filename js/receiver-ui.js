@@ -1,36 +1,32 @@
+// Configuração IGUAL à versão original
 const rtcCore = new WebRTCCore('https://lemur-signal.onrender.com');
-const localVideo = document.getElementById('localVideo');
+const myId = crypto.randomUUID();
+document.getElementById('myId').textContent = myId;
+rtcCore.initialize(myId);
+rtcCore.setupAnswerHandlers();
+
 const remoteVideo = document.getElementById('remoteVideo');
-const acceptBtn = document.getElementById('acceptBtn');
+const aceitarBtn = document.getElementById('aceitarBtn');
 
-// Inicialização
-document.getElementById('myId').textContent = rtcCore.initialize();
+// Funções IGUAIS à versão original
+function abrirMinhaCamera() {
+  navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+    .then(stream => {
+      document.getElementById('myCameraPreview').srcObject = stream;
+    })
+    .catch(err => {
+      console.error('Erro ao abrir câmera local:', err);
+    });
+}
 
-// Configura handlers
-rtcCore.onRemoteStream = stream => {
-  remoteVideo.srcObject = stream;
-};
-
-rtcCore.onCallReceived = (from, offer) => {
-  acceptBtn.classList.remove('hidden');
-  acceptBtn.onclick = () => {
-    rtcCore.acceptCall(offer)
-      .catch(err => {
-        console.error("Erro ao aceitar chamada:", err);
-        alert("Falha ao aceitar chamada");
-      });
+// Handlers IGUAIS ao original
+rtcCore.onIncomingCall = (from, offer) => {
+  aceitarBtn.style.display = 'inline-block';
+  aceitarBtn.onclick = () => {
+    rtcCore.acceptCall(from, offer);
   };
 };
 
-// Controles
-function startLocalCamera() {
-  navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-    .then(stream => {
-      localVideo.srcObject = stream;
-      rtcCore.localStream = stream;
-    })
-    .catch(err => {
-      console.error("Erro ao acessar câmera:", err);
-      alert("Não foi possível acessar a câmera/microfone");
-    });
-}
+rtcCore.onRemoteStream = stream => {
+  remoteVideo.srcObject = stream;
+};
