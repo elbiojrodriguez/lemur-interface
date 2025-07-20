@@ -14,7 +14,7 @@ const targetInput = document.getElementById('targetId');
 function abrirMinhaCamera() {
   navigator.mediaDevices.getUserMedia({ video: true, audio: false })
     .then(stream => {
-      previewVideo.srcObject = stream;
+      localVideo.srcObject = stream;
     })
     .catch(err => {
       console.error('Erro ao abrir câmera local:', err);
