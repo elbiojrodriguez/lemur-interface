@@ -1,25 +1,19 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Visitante (Caller)</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Caller</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Telas de vídeo com layout Jabuti -->
   <div class="video-container">
     <video id="remoteVideo" autoplay playsinline></video>
     <video id="localVideo" autoplay muted playsinline></video>
   </div>
-
-  <!-- Controles e Identificação -->
   <div class="controls">
     <p>Seu ID: <span id="myId"></span></p>
-    <input type="text" id="targetId" placeholder="ID do dono" />
-    <button onclick="abrirMinhaCamera()">Mostrar minha câmera</button>
-    <button id="chamarBtn">Chamar</button>
+    <input type="text" id="targetId" placeholder="ID do Receiver">
+    <button id="callBtn">Chamar</button>
   </div>
-
   <script src="https://lemur-signal.onrender.com/socket.io/socket.io.js"></script>
   <script src="core/webrtc-core.js"></script>
   <script src="js/caller-ui.js"></script>
