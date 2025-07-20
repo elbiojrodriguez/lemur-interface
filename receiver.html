@@ -1,22 +1,18 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Dono (Receiver)</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Receiver</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="video-container">
     <video id="remoteVideo" autoplay playsinline></video>
-    <video id="myCameraPreview" autoplay muted playsinline></video>
+    <video id="localVideo" autoplay muted playsinline></video>
   </div>
-
   <div class="controls">
     <p>Seu ID: <span id="myId"></span></p>
-    <button onclick="abrirMinhaCamera()">Mostrar minha câmera</button>
-    <button id="aceitarBtn" class="hidden">Aceitar chamada</button>
+    <button id="acceptBtn" style="display:none;">Aceitar Chamada</button>
   </div>
-
   <script src="https://lemur-signal.onrender.com/socket.io/socket.io.js"></script>
   <script src="core/webrtc-core.js"></script>
   <script src="js/receiver-ui.js"></script>
