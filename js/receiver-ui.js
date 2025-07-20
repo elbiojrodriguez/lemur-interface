@@ -8,14 +8,14 @@ const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
 const acceptBtn = document.getElementById('acceptBtn');
 
-// MODIFICADO para ativar câmera automaticamente ao receber chamada
 rtcCore.onIncomingCall = (offer) => {
   acceptBtn.style.display = 'block';
   acceptBtn.onclick = () => {
     navigator.mediaDevices.getUserMedia({ video: true, audio: true })
       .then(localStream => {
         localVideo.srcObject = localStream;
-        rtcCore.handleIncomingCall(offer, (remoteStream) => {
+        // Agora passamos o localStream para handleIncomingCall
+        rtcCore.handleIncomingCall(offer, localStream, (remoteStream) => {
           remoteVideo.srcObject = remoteStream;
         });
         acceptBtn.disabled = true;
