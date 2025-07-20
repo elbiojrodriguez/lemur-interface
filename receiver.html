@@ -4,34 +4,10 @@
   <meta charset="UTF-8">
   <title>Dono (Receiver)</title>
   <style>
-    body {
-      background: #121212;
-      color: white;
-      text-align: center;
-      font-family: sans-serif;
-    }
-    video {
-      width: 80%;
-      border: 2px solid #00ffaa;
-      border-radius: 8px;
-      margin-top: 20px;
-    }
-    #myCameraPreview {
-      width: 30%;
-      border: 2px solid #444;
-      border-radius: 6px;
-      margin-top: 15px;
-    }
-    button {
-      padding: 10px 20px;
-      margin-top: 10px;
-      background-color: #00ffaa;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      color: black;
-      cursor: pointer;
-    }
+    body { background: #121212; color: white; text-align: center; font-family: sans-serif; }
+    video { width: 80%; border: 2px solid #00ffaa; border-radius: 8px; margin-top: 20px; }
+    #myCameraPreview { width: 30%; border: 2px solid #444; border-radius: 6px; margin-top: 15px; }
+    button { padding: 10px 20px; margin-top: 10px; background-color: #00ffaa; border: none; border-radius: 6px; font-size: 16px; color: black; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -53,65 +29,48 @@
     const aceitarBtn = document.getElementById('aceitarBtn');
     let peer;
     let callerId;
-    let offer;
 
     socket.on('incomingCall', data => {
-      console.log('📞 Chamada recebida de:', data.from);
       callerId = data.from;
-      offer = data.offer;
       aceitarBtn.style.display = 'inline-block';
+      aceitarBtn.onclick = () => aceitarChamada(data.offer);
     });
 
-    aceitarBtn.onclick = () => {
-      console.log('📡 Aceitando chamada de:', callerId);
-      peer = new RTCPeerConnection({
-        iceServers: [
-          { urls: 'stun:stun.l.google.com:19302' },
-          {
-            urls: 'turn:numb.viagenie.ca',
-            username: 'webrtc@live.com',
-            credential: 'muazkh'
-          }
-        ]
+    function aceitarChamada(offer) {
+      peer = new RTCPeerConnection({ 
+        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
       });
 
       peer.ontrack = event => {
-        console.log('📺 Vídeo recebido');
         remoteVideo.srcObject = event.streams[0];
       };
 
       peer.onicecandidate = event => {
         if (event.candidate) {
-          socket.emit('ice-candidate', {
-            to: callerId,
-            candidate: event.candidate
+          socket.emit('ice-candidate', { 
+            to: callerId, 
+            candidate: event.candidate 
           });
         }
       };
-
-      if (!offer || !offer.type || !offer.sdp) {
-        console.error('🚫 Oferta inválida:', offer);
-        return;
-      }
 
       peer.setRemoteDescription(new RTCSessionDescription(offer))
         .then(() => peer.createAnswer())
         .then(answer => peer.setLocalDescription(answer))
         .then(() => {
-          console.log('✅ Enviando resposta ao visitante');
-          socket.emit('answer', {
-            to: callerId,
-            answer: peer.localDescription
+          socket.emit('answer', { 
+            to: callerId, 
+            answer: peer.localDescription 
           });
         })
         .catch(err => {
-          console.error('🚫 Erro ao aceitar chamada:', err);
+          console.error('Erro ao aceitar chamada:', err);
+          alert('Erro ao aceitar chamada');
         });
-    };
+    }
 
     socket.on('ice-candidate', candidate => {
       if (peer) {
-        console.log('📨 ICE recebido');
         peer.addIceCandidate(new RTCIceCandidate(candidate));
       }
     });
@@ -122,7 +81,8 @@
           document.getElementById('myCameraPreview').srcObject = stream;
         })
         .catch(err => {
-          console.error('🚫 Erro ao abrir câmera local:', err);
+          console.error('Erro ao abrir câmera local:', err);
+          alert('Não foi possível acessar a câmera');
         });
     }
   </script>
