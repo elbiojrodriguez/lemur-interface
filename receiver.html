@@ -1,20 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-  <title>Receiver</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Videochamada Mobile</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="video-container">
+  <!-- Vídeo remoto (tela cheia) -->
+  <div class="remote-container">
     <video id="remoteVideo" autoplay playsinline></video>
+  </div>
+
+  <!-- PIP local (canto inferior direito) -->
+  <div class="local-pip">
     <video id="localVideo" autoplay muted playsinline></video>
   </div>
+
+  <!-- Controles fixos -->
   <div class="controls">
-    <p>Seu ID: <span id="myId"></span></p>
-    <button id="acceptBtn" style="display:none;">Aceitar Chamada</button>
+    <button id="endCallBtn">❌</button>
+    <button id="toggleCameraBtn">🔄</button>
+    <button id="muteBtn">🔇</button>
   </div>
+
+  <!-- IDs dinâmicos (ocultos) -->
+  <div class="info-overlay">
+    <span id="myId"></span>
+    <input type="text" id="targetId" placeholder="ID do Destinatário">
+    <button id="callBtn">Chamar</button>
+    <button id="acceptBtn" style="display:none;">Atender</button>
+  </div>
+
   <script src="https://lemur-signal.onrender.com/socket.io/socket.io.js"></script>
   <script src="core/webrtc-core.js"></script>
-  <script src="js/receiver-ui.js"></script>
+  <script src="js/caller-ui.js"></script> <!-- ou receiver-ui.js -->
 </body>
 </html>
