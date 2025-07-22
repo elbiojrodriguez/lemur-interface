@@ -1,51 +1,54 @@
 const rtcCore = new WebRTCCore('https://lemur-signal.onrender.com');
-const myId = crypto.randomUUID();
+const myId = crypto.randomUUID().substr(0, 8);
 document.getElementById('myId').textContent = myId;
 rtcCore.initialize(myId);
-rtcCore.setupSocketHandlers();
+rtcCore.setupCallHandlers(); // ✅ Correto
 
+// Elementos UI
 const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
 const callBtn = document.getElementById('callBtn');
 const targetInput = document.getElementById('targetId');
 
-// ===== DEBUG 1: Verifica se elementos existem =====
-console.log('Elementos carregados:', {
-  localVideo: !!localVideo,
-  remoteVideo: !!remoteVideo,
-  callBtn: !!callBtn,
-  targetInput: !!targetInput
-});
+// Controles
+document.getElementById('endCallBtn').onclick = () => window.close();
+document.getElementById('toggleCameraBtn').onclick = toggleCamera;
+document.getElementById('muteBtn').onclick = toggleMute;
 
-function startLocalCamera() {
-  navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-    .then(stream => {
-      localVideo.srcObject = stream;
+// Inicia câmera
+startCamera();
 
-      // ===== DEBUG 2: Verifica stream =====
-      console.log('Stream carregado?', stream.id);
-      
-      callBtn.onclick = () => {
-        const targetId = targetInput.value;
-        
-        // ===== DEBUG 3: Verifica clique e ID =====
-        console.log('Botão clicado! ID digitado:', targetId);
-        
-        if (targetId) {
-          console.log('Iniciando chamada para:', targetId);
-          rtcCore.startCall(targetId, stream);
-          callBtn.disabled = true;
-        } else {
-          console.log('Erro: ID não preenchido');
-        }
-      };
-    })
-    .catch(err => {
-      console.error('Erro ao acessar câmera:', err);
-    });
+function startCamera() {
+  navigator.mediaDevices.getUserMedia({ 
+    video: { facingMode: 'user' }, 
+    audio: true 
+  }).then(stream => {
+    localVideo.srcObject = stream;
+    
+    callBtn.onclick = () => {
+      if (targetInput.value) {
+        rtcCore.startCall(targetInput.value, stream);
+        callBtn.disabled = true;
+      }
+    };
+  });
 }
 
-// ===== DEBUG 4: Verifica WebRTC Core =====
-console.log('WebRTCCore carregado?', !!rtcCore.startCall);
+// Callback para vídeo remoto
+rtcCore.onRemoteStream = stream => {
+  remoteVideo.srcObject = stream;
+};
 
-startLocalCamera();
+function toggleCamera() {
+  const videoTrack = localVideo.srcObject?.getVideoTracks()[0];
+  if (videoTrack) videoTrack.enabled = !videoTrack.enabled;
+}
+
+function toggleMute() {
+  const audioTrack = localVideo.srcObject?.getAudioTracks()[0];
+  if (audioTrack) {
+    audioTrack.enabled = !audioTrack.enabled;
+    document.getElementById('muteBtn').textContent = 
+      audioTrack.enabled ? '🔇' : '🔊';
+  }
+}
