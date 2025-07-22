@@ -1,35 +1,51 @@
-// Garanta que estas variáveis são globais
 const rtcCore = new WebRTCCore('https://lemur-signal.onrender.com');
-let localStream = null;
+const myId = crypto.randomUUID();
+document.getElementById('myId').textContent = myId;
+rtcCore.initialize(myId);
+rtcCore.setupSocketHandlers();
 
-// Inicia a câmera e configura o botão
-async function startLocalCamera() {
-  try {
-    localStream = await navigator.mediaDevices.getUserMedia({ 
-      video: true, 
-      audio: true 
+const localVideo = document.getElementById('localVideo');
+const remoteVideo = document.getElementById('remoteVideo');
+const callBtn = document.getElementById('callBtn');
+const targetInput = document.getElementById('targetId');
+
+// ===== DEBUG 1: Verifica se elementos existem =====
+console.log('Elementos carregados:', {
+  localVideo: !!localVideo,
+  remoteVideo: !!remoteVideo,
+  callBtn: !!callBtn,
+  targetInput: !!targetInput
+});
+
+function startLocalCamera() {
+  navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    .then(stream => {
+      localVideo.srcObject = stream;
+
+      // ===== DEBUG 2: Verifica stream =====
+      console.log('Stream carregado?', stream.id);
+      
+      callBtn.onclick = () => {
+        const targetId = targetInput.value;
+        
+        // ===== DEBUG 3: Verifica clique e ID =====
+        console.log('Botão clicado! ID digitado:', targetId);
+        
+        if (targetId) {
+          console.log('Iniciando chamada para:', targetId);
+          rtcCore.startCall(targetId, stream);
+          callBtn.disabled = true;
+        } else {
+          console.log('Erro: ID não preenchido');
+        }
+      };
+    })
+    .catch(err => {
+      console.error('Erro ao acessar câmera:', err);
     });
-    
-    const localVideo = document.getElementById('localVideo');
-    localVideo.srcObject = localStream;
-
-    // Configura o botão "Chamar" (AGORA FUNCIONAL)
-    const callBtn = document.getElementById('callBtn');
-    const targetInput = document.getElementById('targetId');
-
-    callBtn.addEventListener('click', () => {
-      if (targetInput.value && localStream) {
-        rtcCore.startCall(targetInput.value, localStream);
-        callBtn.disabled = true;
-      } else {
-        console.log('Preencha o ID ou aguarde a câmera carregar');
-      }
-    });
-
-  } catch (err) {
-    console.error('Erro ao acessar câmera:', err);
-  }
 }
 
-// Inicia tudo quando a página carrega
-window.onload = startLocalCamera;
+// ===== DEBUG 4: Verifica WebRTC Core =====
+console.log('WebRTCCore carregado?', !!rtcCore.startCall);
+
+startLocalCamera();
