@@ -1,48 +1,24 @@
-// Adicione no INÍCIO do arquivo
-const socket = io('https://lemur-signal.onrender.com');
-let peerConnection;
+const rtcCore = new WebRTCCore('https://lemur-signal.onrender.com');
+const myId = crypto.randomUUID();
+document.getElementById('myId').textContent = myId;
+rtcCore.initialize(myId);
+rtcCore.setupSocketHandlers();
 
-// Substitua a função de inicialização existente por:
-function initReceiverUI() {
-  // 1. Registra no servidor
-  socket.emit('register', getCurrentUserId()); // Use sua função existente
+const localVideo = document.getElementById('localVideo');
+const remoteVideo = document.getElementById('remoteVideo');
+const acceptBtn = document.getElementById('acceptBtn');
 
-  // 2. Configura handlers
-  socket.on('incomingCall', async ({ from, offer }) => {
-    console.log("📞 Chamada recebida de:", from);
-    
-    try {
-      // Cria peer connection
-      peerConnection = createPeerConnection(); // Use sua função existente
-      
-      // Configura stream remoto
-      peerConnection.ontrack = (event) => {
-        // Use sua função existente para mostrar o vídeo
-        displayRemoteStream(event.streams[0]); 
-      };
-
-      // Processa oferta
-      await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-      const answer = await peerConnection.createAnswer();
-      await peerConnection.setLocalDescription(answer);
-      
-      // Envia resposta
-      socket.emit('answer', {
-        to: from,
-        answer: answer
+rtcCore.onIncomingCall = (offer) => {
+  acceptBtn.style.display = 'block';
+  acceptBtn.onclick = () => {
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then(localStream => {
+        localVideo.srcObject = localStream;
+        // Agora passamos o localStream para handleIncomingCall
+        rtcCore.handleIncomingCall(offer, localStream, (remoteStream) => {
+          remoteVideo.srcObject = remoteStream;
+        });
+        acceptBtn.disabled = true;
       });
-
-    } catch (error) {
-      console.error("Erro ao processar chamada:", error);
-    }
-  });
-
-  // Handler para ICE candidates
-  socket.on('ice-candidate', (candidate) => {
-    if (peerConnection && candidate) {
-      peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-    }
-  });
-}
-
-// Mantenha todas as outras funções existentes
+  };
+};
