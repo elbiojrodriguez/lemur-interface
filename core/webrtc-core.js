@@ -8,8 +8,7 @@ class WebRTCCore {
     this.remoteStreamCallback = null;
     this.currentCaller = null;
 
-    // Importa configurações de STUN/TURN globais
-    this.iceServers = getIceServers();
+    this.iceServers = getIceServers(); // Conexão global
   }
 
   initialize(userId) {
@@ -20,19 +19,16 @@ class WebRTCCore {
     this.localStream = stream;
     this.peer = new RTCPeerConnection({ iceServers: this.iceServers });
 
-    // Adiciona tracks locais
     stream.getTracks().forEach(track => {
       this.peer.addTrack(track, stream);
     });
 
-    // Recebe stream remota
     this.peer.ontrack = event => {
       if (this.remoteStreamCallback) {
         this.remoteStreamCallback(event.streams[0]);
       }
     };
 
-    // ICE candidates
     this.peer.onicecandidate = event => {
       if (event.candidate) {
         this.socket.emit('ice-candidate', {
@@ -61,9 +57,7 @@ class WebRTCCore {
       });
     }
 
-    this.peer.ontrack = event => {
-      callback(event.streams[0]);
-    };
+    this.peer.ontrack = event => callback(event.streams[0]);
 
     this.peer.onicecandidate = event => {
       if (event.candidate) {
