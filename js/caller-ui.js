@@ -1,54 +1,35 @@
+// Garanta que estas variáveis são globais
 const rtcCore = new WebRTCCore('https://lemur-signal.onrender.com');
-const myId = crypto.randomUUID().substr(0, 8);
-document.getElementById('myId').textContent = myId;
-rtcCore.initialize(myId);
-rtcCore.setupSocketHandlers();
+let localStream = null;
 
-// Elementos UI
-const localVideo = document.getElementById('localVideo');
-const remoteVideo = document.getElementById('remoteVideo');
-const callBtn = document.getElementById('callBtn');
-const targetInput = document.getElementById('targetId');
-
-// Controles
-document.getElementById('endCallBtn').onclick = () => window.close();
-document.getElementById('toggleCameraBtn').onclick = toggleCamera;
-document.getElementById('muteBtn').onclick = toggleMute;
-
-// Inicia câmera
-startCamera();
-
-function startCamera() {
-  navigator.mediaDevices.getUserMedia({ 
-    video: { facingMode: 'user' }, 
-    audio: true 
-  }).then(stream => {
-    localVideo.srcObject = stream;
+// Inicia a câmera e configura o botão
+async function startLocalCamera() {
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({ 
+      video: true, 
+      audio: true 
+    });
     
-    callBtn.onclick = () => {
-      if (targetInput.value) {
-        rtcCore.startCall(targetInput.value, stream);
+    const localVideo = document.getElementById('localVideo');
+    localVideo.srcObject = localStream;
+
+    // Configura o botão "Chamar" (AGORA FUNCIONAL)
+    const callBtn = document.getElementById('callBtn');
+    const targetInput = document.getElementById('targetId');
+
+    callBtn.addEventListener('click', () => {
+      if (targetInput.value && localStream) {
+        rtcCore.startCall(targetInput.value, localStream);
         callBtn.disabled = true;
+      } else {
+        console.log('Preencha o ID ou aguarde a câmera carregar');
       }
-    };
-  });
-}
+    });
 
-// Callback para vídeo remoto
-rtcCore.setRemoteStreamCallback(stream => {
-  remoteVideo.srcObject = stream;
-});
-
-function toggleCamera() {
-  const videoTrack = localVideo.srcObject?.getVideoTracks()[0];
-  if (videoTrack) videoTrack.enabled = !videoTrack.enabled;
-}
-
-function toggleMute() {
-  const audioTrack = localVideo.srcObject?.getAudioTracks()[0];
-  if (audioTrack) {
-    audioTrack.enabled = !audioTrack.enabled;
-    document.getElementById('muteBtn').textContent = 
-      audioTrack.enabled ? '🔇' : '🔊';
+  } catch (err) {
+    console.error('Erro ao acessar câmera:', err);
   }
 }
+
+// Inicia tudo quando a página carrega
+window.onload = startLocalCamera;
