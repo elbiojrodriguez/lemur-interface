@@ -1,9 +1,15 @@
+import { getIceServers } from './internet-config.js';
+
 class WebRTCCore {
   constructor(socketUrl) {
     this.socket = io(socketUrl);
     this.peer = null;
     this.localStream = null;
-    this.remoteStreamCallback = null; // Adicionado para gerenciar callback
+    this.remoteStreamCallback = null;
+    this.currentCaller = null;
+
+    // Importa configurações de STUN/TURN globais
+    this.iceServers = getIceServers();
   }
 
   initialize(userId) {
@@ -12,23 +18,22 @@ class WebRTCCore {
 
   startCall(targetId, stream) {
     this.localStream = stream;
-    this.peer = new RTCPeerConnection({ 
-      iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] 
-    });
+    this.peer = new RTCPeerConnection({ iceServers: this.iceServers });
 
     // Adiciona tracks locais
     stream.getTracks().forEach(track => {
       this.peer.addTrack(track, stream);
     });
 
-    // Configura para receber tracks remotas
-    this.peer.ontrack = (event) => {
+    // Recebe stream remota
+    this.peer.ontrack = event => {
       if (this.remoteStreamCallback) {
         this.remoteStreamCallback(event.streams[0]);
       }
     };
 
-    this.peer.onicecandidate = (event) => {
+    // ICE candidates
+    this.peer.onicecandidate = event => {
       if (event.candidate) {
         this.socket.emit('ice-candidate', {
           to: targetId,
@@ -47,24 +52,20 @@ class WebRTCCore {
       });
   }
 
-  handleIncomingCall(offer, localStream, callback) { // Modificado para receber localStream
-    this.peer = new RTCPeerConnection({
-      iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-    });
+  handleIncomingCall(offer, localStream, callback) {
+    this.peer = new RTCPeerConnection({ iceServers: this.iceServers });
 
-    // Adiciona tracks locais
     if (localStream) {
       localStream.getTracks().forEach(track => {
         this.peer.addTrack(track, localStream);
       });
     }
 
-    // Configura para receber tracks remotas
-    this.peer.ontrack = (event) => {
+    this.peer.ontrack = event => {
       callback(event.streams[0]);
     };
 
-    this.peer.onicecandidate = (event) => {
+    this.peer.onicecandidate = event => {
       if (event.candidate) {
         this.socket.emit('ice-candidate', {
           to: this.currentCaller,
@@ -85,19 +86,19 @@ class WebRTCCore {
   }
 
   setupSocketHandlers() {
-    this.socket.on('acceptAnswer', (data) => {
+    this.socket.on('acceptAnswer', data => {
       if (this.peer) {
         this.peer.setRemoteDescription(new RTCSessionDescription(data.answer));
       }
     });
 
-    this.socket.on('ice-candidate', (candidate) => {
+    this.socket.on('ice-candidate', candidate => {
       if (this.peer) {
         this.peer.addIceCandidate(new RTCIceCandidate(candidate));
       }
     });
 
-    this.socket.on('incomingCall', (data) => {
+    this.socket.on('incomingCall', data => {
       this.currentCaller = data.from;
       if (this.onIncomingCall) {
         this.onIncomingCall(data.offer);
@@ -105,8 +106,9 @@ class WebRTCCore {
     });
   }
 
-  // Novo método para atualizar o callback de stream remoto
   setRemoteStreamCallback(callback) {
     this.remoteStreamCallback = callback;
   }
 }
+
+export default WebRTCCore;
