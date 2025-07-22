@@ -1,32 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Caller (Mobile)</title>
+  <title>Caller</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="mobile-layout">
-  <!-- Container do vídeo remoto -->
-  <div class="remote-container">
+<body>
+  <div class="video-container">
     <video id="remoteVideo" autoplay playsinline></video>
-  </div>
-  
-  <!-- PIP do vídeo local -->
-  <div class="local-pip">
     <video id="localVideo" autoplay muted playsinline></video>
   </div>
-
-  <!-- Controles mobile -->
   <div class="controls">
-    <button id="endCallBtn">❌</button>
-    <button id="toggleCameraBtn">🔄</button>
-    <button id="muteBtn">🔇</button>
-    <button id="callBtn" class="mobile-call-button">📞 Chamar</button>
-    <input type="text" id="targetIdInput" placeholder="Cole o ID aqui" class="mobile-id-input">
+    <p>Seu ID: <span id="myId"></span></p>
+    <input type="text" id="targetId" placeholder="ID do Receiver">
+    <button id="callBtn">Chamar</button>
   </div>
-
-  <!-- Scripts originais (sem modificações) -->
   <script src="https://lemur-signal.onrender.com/socket.io/socket.io.js"></script>
   <script src="core/webrtc-core.js"></script>
   <script src="js/caller-ui.js"></script>
