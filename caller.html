@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Videochamada Mobile</title>
+  <title>Caller - Videochamada Mobile</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -24,16 +24,15 @@
     <button id="muteBtn">🔇</button>
   </div>
 
-  <!-- IDs dinâmicos (ocultos) -->
+  <!-- IDs dinâmicos -->
   <div class="info-overlay">
     <span id="myId"></span>
     <input type="text" id="targetId" placeholder="ID do Destinatário">
     <button id="callBtn">Chamar</button>
-    <button id="acceptBtn" style="display:none;">Atender</button>
   </div>
 
   <script src="https://lemur-signal.onrender.com/socket.io/socket.io.js"></script>
   <script src="core/webrtc-core.js"></script>
-  <script src="js/caller-ui.js"></script> <!-- ou receiver-ui.js -->
+  <script src="js/caller-ui.js"></script>
 </body>
 </html>
