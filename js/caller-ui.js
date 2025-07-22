@@ -1,52 +1,59 @@
-// Sobrescreve a inicialização padrão para mobile
-document.addEventListener('DOMContentLoaded', function() {
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+// Adicione no INÍCIO do arquivo
+const socket = io('https://lemur-signal.onrender.com');
+let peerConnection;
+let targetUserId = null;
+
+// Substitua a função de inicialização existente por:
+function initCallerUI() {
+  const callButton = document.getElementById('callButton'); // Use seu ID real do botão
   
-  if (isMobile) {
-    // Configurações mobile
-    const localVideo = document.getElementById('localVideo');
-    const remoteVideo = document.getElementById('remoteVideo');
-    const callBtn = document.getElementById('callBtn');
-    const targetIdInput = document.getElementById('targetIdInput');
+  callButton.addEventListener('click', async () => {
+    if (!targetUserId) {
+      targetUserId = prompt("Cole o ID do destinatário:");
+      if (!targetUserId) return;
+    }
 
-    // 1. Inicia a câmera
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-      .then(stream => {
-        localVideo.srcObject = stream;
-        
-        // 2. Cria peer connection (usando função do core)
-        const peerConnection = createPeerConnection({
-          iceServers: STUN_SERVERS,
-          onTrack: (event) => {
-            remoteVideo.srcObject = event.streams[0];
-            console.log("✅ Stream remoto recebido!");
-          }
-        });
+    try {
+      // 1. Registra no servidor
+      socket.emit('register', getCurrentUserId()); // Use sua função existente para pegar o ID
 
-        // 3. Adiciona stream local
-        stream.getTracks().forEach(track => {
-          peerConnection.addTrack(track, stream);
-        });
+      // 2. Cria peer connection (usando sua configuração existente)
+      peerConnection = createPeerConnection(); 
 
-        // 4. Botão de chamada
-        callBtn.addEventListener('click', () => {
-          const targetId = targetIdInput.value.trim();
-          if (!targetId) return alert("Digite um ID válido!");
-
-          // Usa a função do core para iniciar chamada
-          startCall(peerConnection, targetId)
-            .then(() => console.log("📞 Chamando..."))
-            .catch(err => console.error("Erro ao chamar:", err));
-        });
-
-      })
-      .catch(err => {
-        console.error("Erro ao acessar mídia:", err);
-        alert("Permissão de câmera/microfone negada!");
+      // 3. Obtém stream local (usando sua função existente)
+      const localStream = await getLocalStream();
+      
+      // 4. Adiciona tracks ao peer connection
+      localStream.getTracks().forEach(track => {
+        peerConnection.addTrack(track, localStream);
       });
 
-  } else {
-    // Mantém o comportamento original para desktop
-    initCallerUI();
-  }
-});
+      // 5. Cria e envia oferta
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+      
+      socket.emit('call', {
+        to: targetUserId,
+        offer: offer
+      });
+
+      console.log("✅ Oferta enviada para:", targetUserId);
+
+    } catch (error) {
+      console.error("Erro ao iniciar chamada:", error);
+    }
+  });
+
+  // Configura handlers para eventos do servidor
+  socket.on('acceptAnswer', async ({ answer }) => {
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+  });
+
+  socket.on('ice-candidate', (candidate) => {
+    if (peerConnection && candidate) {
+      peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+    }
+  });
+}
+
+// Mantenha todas as outras funções existentes
