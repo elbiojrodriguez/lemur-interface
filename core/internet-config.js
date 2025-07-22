@@ -10,8 +10,8 @@ export const getIceServers = () => {
       urls: 'turn:meet-jit-si-turnrelay.jitsi.net:443?transport=tcp',
       username: 'guest',
       credential: 'guest'
-    },
-    
+    }
+
     // Adicione outros servidores aqui quando necessário
     // Exemplo com Twilio:
     /*
