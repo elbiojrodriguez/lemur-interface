@@ -14,7 +14,7 @@ document.getElementById('endCallBtn').onclick = () => window.close();
 document.getElementById('toggleCameraBtn').onclick = toggleCamera;
 document.getElementById('muteBtn').onclick = toggleMute;
 
-// Handler de chamada
+// Handler de chamada recebida
 rtcCore.onIncomingCall = (offer) => {
   acceptBtn.style.display = 'block';
   acceptBtn.onclick = () => {
@@ -27,6 +27,8 @@ rtcCore.onIncomingCall = (offer) => {
         remoteVideo.srcObject = remoteStream;
       });
       acceptBtn.disabled = true;
+    }).catch(err => {
+      console.error('Erro ao acessar câmera:', err);
     });
   };
 };
