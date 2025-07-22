@@ -2,7 +2,7 @@ const rtcCore = new WebRTCCore('https://lemur-signal.onrender.com');
 const myId = crypto.randomUUID().substr(0, 8);
 document.getElementById('myId').textContent = myId;
 rtcCore.initialize(myId);
-rtcCore.setupAnswerHandlers(); // ✅ Correto
+rtcCore.setupSocketHandlers(); // ✅ correto
 
 // Elementos UI
 const localVideo = document.getElementById('localVideo');
@@ -15,7 +15,7 @@ document.getElementById('toggleCameraBtn').onclick = toggleCamera;
 document.getElementById('muteBtn').onclick = toggleMute;
 
 // Handler de chamada
-rtcCore.onIncomingCall = (from, offer) => {
+rtcCore.onIncomingCall = (offer) => {
   acceptBtn.style.display = 'block';
   acceptBtn.onclick = () => {
     navigator.mediaDevices.getUserMedia({ 
@@ -23,14 +23,12 @@ rtcCore.onIncomingCall = (from, offer) => {
       audio: true 
     }).then(stream => {
       localVideo.srcObject = stream;
-      rtcCore.acceptCall(from, offer);
+      rtcCore.handleIncomingCall(offer, stream, (remoteStream) => {
+        remoteVideo.srcObject = remoteStream;
+      });
       acceptBtn.disabled = true;
     });
   };
-};
-
-rtcCore.onRemoteStream = stream => {
-  remoteVideo.srcObject = stream;
 };
 
 function toggleCamera() {
