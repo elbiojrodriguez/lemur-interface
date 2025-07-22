@@ -29,10 +29,10 @@ body {
   background: #111;
 }
 
-/* 🖼️ Vídeo local em PIP */
+/* 🖼️ Vídeo local em PIP com moldura verde */
 .local-pip {
   position: absolute;
-  bottom: calc(80px + 60px); /* distância dos botões */
+  bottom: calc(80px + 60px);
   right: 20px;
   width: 30%;
   max-width: 120px;
@@ -40,6 +40,7 @@ body {
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  border: 2px solid #4CAF50; /* Moldura verde */
   z-index: 10;
 }
 
@@ -50,10 +51,10 @@ body {
   transform: scaleX(-1); /* Espelho para selfie */
 }
 
-/* 🎛️ Controles ao lado esquerdo */
+/* 🎛️ Controles ao lado esquerdo do pip */
 .controls {
   position: absolute;
-  bottom: calc(80px + 60px); /* mesmo nível da base do pip */
+  bottom: calc(80px + 60px);
   left: 20px;
   display: flex;
   flex-direction: column;
@@ -78,7 +79,7 @@ input:focus {
   outline: none;
 }
 
-/* 🆔 Overlay de informações (ID, botões de chamada) */
+/* 🆔 Overlay de informações (ID, chamada) */
 .info-overlay {
   position: absolute;
   top: 20px;
@@ -102,7 +103,6 @@ input:focus {
   font-size: 16px;
 }
 
-/* 🎯 Botões de ação principais */
 #callBtn,
 #acceptBtn {
   background: #4CAF50;
