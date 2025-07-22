@@ -2,7 +2,7 @@ const rtcCore = new WebRTCCore('https://lemur-signal.onrender.com');
 const myId = crypto.randomUUID().substr(0, 8);
 document.getElementById('myId').textContent = myId;
 rtcCore.initialize(myId);
-rtcCore.setupCallHandlers(); // ✅ Correto
+rtcCore.setupSocketHandlers(); // ✅ correto
 
 // Elementos UI
 const localVideo = document.getElementById('localVideo');
@@ -35,9 +35,9 @@ function startCamera() {
 }
 
 // Callback para vídeo remoto
-rtcCore.onRemoteStream = stream => {
+rtcCore.setRemoteStreamCallback(stream => {
   remoteVideo.srcObject = stream;
-};
+});
 
 function toggleCamera() {
   const videoTrack = localVideo.srcObject?.getVideoTracks()[0];
