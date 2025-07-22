@@ -1,36 +1,48 @@
-const rtcCore = new WebRTCCore('https://lemur-signal.onrender.com');
-const myId = crypto.randomUUID().substr(0, 8);
-document.getElementById('myId').textContent = myId;
-rtcCore.initialize(myId);
-rtcCore.setupSocketHandlers();
+// Adicione no INÍCIO do arquivo
+const socket = io('https://lemur-signal.onrender.com');
+let peerConnection;
 
-// Elementos UI
-const localVideo = document.getElementById('localVideo');
-const remoteVideo = document.getElementById('remoteVideo');
-const acceptBtn = document.getElementById('acceptBtn');
+// Substitua a função de inicialização existente por:
+function initReceiverUI() {
+  // 1. Registra no servidor
+  socket.emit('register', getCurrentUserId()); // Use sua função existente
 
-// Controles
-document.getElementById('endCallBtn').onclick = () => window.close();
-document.getElementById('toggleCameraBtn').onclick = toggleCamera;
-document.getElementById('muteBtn').onclick = toggleMute;
+  // 2. Configura handlers
+  socket.on('incomingCall', async ({ from, offer }) => {
+    console.log("📞 Chamada recebida de:", from);
+    
+    try {
+      // Cria peer connection
+      peerConnection = createPeerConnection(); // Use sua função existente
+      
+      // Configura stream remoto
+      peerConnection.ontrack = (event) => {
+        // Use sua função existente para mostrar o vídeo
+        displayRemoteStream(event.streams[0]); 
+      };
 
-// Handler de chamada
-rtcCore.onIncomingCall = (offer) => {
-  acceptBtn.style.display = 'block';
-  acceptBtn.onclick = () => {
-    navigator.mediaDevices.getUserMedia({ 
-      video: { facingMode: 'user' }, 
-      audio: true 
-    }).then(stream => {
-      localVideo.srcObject = stream;
-      rtcCore.handleIncomingCall(offer, stream, (remoteStream) => {
-        remoteVideo.srcObject = remoteStream;
+      // Processa oferta
+      await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+      const answer = await peerConnection.createAnswer();
+      await peerConnection.setLocalDescription(answer);
+      
+      // Envia resposta
+      socket.emit('answer', {
+        to: from,
+        answer: answer
       });
-      acceptBtn.disabled = true;
-    });
-  };
-};
 
-// Funções de controle (iguais ao caller)
-function toggleCamera() { /* ... */ }
-function toggleMute() { /* ... */ }
+    } catch (error) {
+      console.error("Erro ao processar chamada:", error);
+    }
+  });
+
+  // Handler para ICE candidates
+  socket.on('ice-candidate', (candidate) => {
+    if (peerConnection && candidate) {
+      peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+    }
+  });
+}
+
+// Mantenha todas as outras funções existentes
