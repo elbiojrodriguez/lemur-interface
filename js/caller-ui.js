@@ -1,59 +1,30 @@
-// Adicione no INÍCIO do arquivo
-const socket = io('https://lemur-signal.onrender.com');
-let peerConnection;
-let targetUserId = null;
+const rtcCore = new WebRTCCore('https://lemur-signal.onrender.com');
+const myId = crypto.randomUUID();
+document.getElementById('myId').textContent = myId;
+rtcCore.initialize(myId);
+rtcCore.setupSocketHandlers();
 
-// Substitua a função de inicialização existente por:
-function initCallerUI() {
-  const callButton = document.getElementById('callButton'); // Use seu ID real do botão
-  
-  callButton.addEventListener('click', async () => {
-    if (!targetUserId) {
-      targetUserId = prompt("Cole o ID do destinatário:");
-      if (!targetUserId) return;
-    }
+const localVideo = document.getElementById('localVideo');
+const remoteVideo = document.getElementById('remoteVideo');
+const callBtn = document.getElementById('callBtn');
 
-    try {
-      // 1. Registra no servidor
-      socket.emit('register', getCurrentUserId()); // Use sua função existente para pegar o ID
+// Configura o callback para stream remoto
+rtcCore.setRemoteStreamCallback((stream) => {
+  remoteVideo.srcObject = stream;
+});
 
-      // 2. Cria peer connection (usando sua configuração existente)
-      peerConnection = createPeerConnection(); 
-
-      // 3. Obtém stream local (usando sua função existente)
-      const localStream = await getLocalStream();
-      
-      // 4. Adiciona tracks ao peer connection
-      localStream.getTracks().forEach(track => {
-        peerConnection.addTrack(track, localStream);
-      });
-
-      // 5. Cria e envia oferta
-      const offer = await peerConnection.createOffer();
-      await peerConnection.setLocalDescription(offer);
-      
-      socket.emit('call', {
-        to: targetUserId,
-        offer: offer
-      });
-
-      console.log("✅ Oferta enviada para:", targetUserId);
-
-    } catch (error) {
-      console.error("Erro ao iniciar chamada:", error);
-    }
-  });
-
-  // Configura handlers para eventos do servidor
-  socket.on('acceptAnswer', async ({ answer }) => {
-    await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-  });
-
-  socket.on('ice-candidate', (candidate) => {
-    if (peerConnection && candidate) {
-      peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-    }
-  });
+function startLocalCamera() {
+  navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    .then(stream => {
+      localVideo.srcObject = stream;
+      callBtn.onclick = () => {
+        const targetId = document.getElementById('targetId').value;
+        if (targetId) {
+          rtcCore.startCall(targetId, stream);
+          callBtn.disabled = true;
+        }
+      };
+    });
 }
 
-// Mantenha todas as outras funções existentes
+startLocalCamera();
