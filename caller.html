@@ -7,24 +7,20 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Vídeo remoto (tela cheia) -->
   <div class="remote-container">
     <video id="remoteVideo" autoplay playsinline></video>
   </div>
 
-  <!-- PIP local (canto inferior direito) -->
   <div class="local-pip">
     <video id="localVideo" autoplay muted playsinline></video>
   </div>
 
-  <!-- Controles fixos -->
   <div class="controls">
     <button id="endCallBtn">❌</button>
     <button id="toggleCameraBtn">🔄</button>
     <button id="muteBtn">🔇</button>
   </div>
 
-  <!-- IDs dinâmicos -->
   <div class="info-overlay">
     <span id="myId"></span>
     <input type="text" id="targetId" placeholder="ID do Destinatário">
@@ -32,7 +28,6 @@
   </div>
 
   <script src="https://lemur-signal.onrender.com/socket.io/socket.io.js"></script>
-  <script src="core/webrtc-core.js"></script>
-  <script src="js/caller-ui.js"></script>
+  <script type="module" src="js/caller-ui.js"></script>
 </body>
 </html>
