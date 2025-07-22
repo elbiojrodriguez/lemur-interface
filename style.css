@@ -1,4 +1,4 @@
-/* Reset mobile */
+/* 🧼 Reset para mobile */
 * {
   margin: 0;
   padding: 0;
@@ -8,13 +8,14 @@
 
 body {
   background: #000;
-  height: 100vh;
+  min-height: 100vh;
+  height: 100%;
   overflow: hidden;
   position: relative;
   font-family: Arial, sans-serif;
 }
 
-/* Containers de vídeo */
+/* 📺 Vídeo remoto em tela cheia */
 .remote-container {
   position: absolute;
   width: 100%;
@@ -28,9 +29,10 @@ body {
   background: #111;
 }
 
+/* 🖼️ Vídeo local em PIP */
 .local-pip {
   position: absolute;
-  bottom: 80px;
+  bottom: calc(80px + 60px); /* Evita sobrepor os controles */
   right: 20px;
   width: 30%;
   max-width: 120px;
@@ -45,10 +47,10 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scaleX(-1); /* Espelho */
+  transform: scaleX(-1); /* Espelho para selfie */
 }
 
-/* Controles principais */
+/* 🎛️ Controles principais flutuantes */
 .controls {
   position: absolute;
   bottom: 20px;
@@ -72,7 +74,12 @@ body {
   backdrop-filter: blur(5px);
 }
 
-/* Overlay de informações (ID, chamada) */
+button:focus,
+input:focus {
+  outline: none;
+}
+
+/* 🆔 Overlay de informações (ID, botões de chamada) */
 .info-overlay {
   position: absolute;
   top: 20px;
@@ -86,14 +93,45 @@ body {
   border-radius: 0 0 10px 10px;
 }
 
-#targetId, #callBtn, #acceptBtn {
+#targetId,
+#callBtn,
+#acceptBtn {
   margin: 5px;
   padding: 8px 12px;
   border-radius: 20px;
   border: none;
+  font-size: 16px;
 }
 
-#callBtn, #acceptBtn {
+/* 🎯 Botões de ação principais */
+#callBtn,
+#acceptBtn {
   background: #4CAF50;
   color: white;
+  cursor: pointer;
+}
+
+/* 📱 Adaptação para telas menores */
+@media (max-width: 400px) {
+  .controls button {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .local-pip {
+    height: 120px;
+    max-width: 100px;
+  }
+
+  #targetId,
+  #callBtn,
+  #acceptBtn {
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+
+  .info-overlay {
+    padding: 8px;
+  }
 }
