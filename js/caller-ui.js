@@ -24,13 +24,16 @@ function startCamera() {
     audio: true 
   }).then(stream => {
     localVideo.srcObject = stream;
-    
+
     callBtn.onclick = () => {
-      if (targetInput.value) {
-        rtcCore.startCall(targetInput.value, stream);
+      const targetId = targetInput.value.trim();
+      if (targetId) {
+        rtcCore.startCall(targetId, stream);
         callBtn.disabled = true;
       }
     };
+  }).catch(err => {
+    console.error('Erro ao acessar câmera:', err);
   });
 }
 
