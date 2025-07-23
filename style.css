@@ -134,16 +134,19 @@ body {
   color: white;
 }
 
-/* Mensagem de status */
+/* Mensagem de status centralizada */
 #statusMessage {
   position: absolute;
-  bottom: 20px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 100%;
   text-align: center;
   font-size: 18px;
   color: white;
   z-index: 15;
   text-shadow: 0 0 5px rgba(0,0,0,0.7);
+  padding: 0 20px;
 }
 
 /* Responsivo para telas pequenas */
@@ -157,7 +160,7 @@ body {
   .local-pip {
     height: 120px;
     max-width: 100px;
-  bottom: calc(60px + 60px);
+    bottom: calc(60px + 60px);
   }
 
   .info-overlay {
@@ -166,6 +169,5 @@ body {
 
   #statusMessage {
     font-size: 16px;
-    bottom: 15px;
   }
 }
