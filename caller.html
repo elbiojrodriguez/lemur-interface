@@ -1,37 +1,108 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Caller - Videochamada Mobile</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Lemur — Visitante</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: black;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    #localVideo {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 160px;
+      height: 120px;
+      border: 2px solid white;
+      z-index: 10;
+    }
+
+    #statusMessage {
+      position: absolute;
+      bottom: 40px;
+      width: 100%;
+      text-align: center;
+      font-size: 18px;
+      color: white;
+      z-index: 5;
+    }
+  </style>
 </head>
 <body>
-  <div class="remote-container">
-    <video id="remoteVideo" autoplay playsinline></video>
-  </div>
 
-  <div class="local-pip">
-    <video id="localVideo" autoplay muted playsinline></video>
-  </div>
+  <video id="localVideo" autoplay muted playsinline></video>
+  <div id="statusMessage">Esperando resposta do dono...</div>
 
-  <div class="pip-horizon"></div>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script>
+    const socket = io('https://lemur-signal.onrender.com');
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetId = urlParams.get('id');
 
-  <div class="ad-space">
-    <span>Espaço reservado</span><br />
-    <span>para publicidade</span>
-  </div>
+    let localStream;
+    let peer;
 
-  <div class="controls">
-    <button id="callActionBtn">Call</button>
-    <button id="offBtn">Off</button>
-  </div>
+    async function startCall() {
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        document.getElementById('localVideo').srcObject = localStream;
 
-  <div class="info-overlay">
-    <span id="myId"></span>
-  </div>
+        peer = new RTCPeerConnection();
 
-  <script src="https://lemur-signal.onrender.com/socket.io/socket.io.js"></script>
-  <script type="module" src="js/caller-ui.js"></script>
+        localStream.getTracks().forEach(track => {
+          peer.addTrack(track, localStream);
+        });
+
+        peer.onicecandidate = event => {
+          if (event.candidate) {
+            socket.emit('ice-candidate', {
+              to: targetId,
+              candidate: event.candidate
+            });
+          }
+        };
+
+        const offer = await peer.createOffer();
+        await peer.setLocalDescription(offer);
+
+        socket.emit('call', {
+          to: targetId,
+          from: 'visitor',
+          offer: offer
+        });
+
+        console.log('Chamada enviada para', targetId);
+      } catch (err) {
+        alert('Permita acesso à câmera e microfone para continuar.');
+        console.error(err);
+      }
+    }
+
+    socket.on('acceptAnswer', async answer => {
+      await peer.setRemoteDescription(new RTCSessionDescription(answer));
+      console.log('Resposta recebida do dono');
+      document.getElementById('statusMessage').textContent = 'Conectado com o dono!';
+    });
+
+    socket.on('ice-candidate', async candidate => {
+      try {
+        await peer.addIceCandidate(new RTCIceCandidate(candidate));
+      } catch (err) {
+        console.error('Erro ao adicionar ICE candidate', err);
+      }
+    });
+
+    // Inicia tudo automaticamente
+    if (targetId) {
+      socket.emit('register', 'visitor');
+      startCall();
+    } else {
+      document.getElementById('statusMessage').textContent = 'ID inválido na URL.';
+    }
+  </script>
 </body>
 </html>
