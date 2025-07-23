@@ -3,7 +3,6 @@ import WebRTCCore from '../core/webrtc-core.js';
 window.onload = () => {
   const rtcCore = new WebRTCCore('https://lemur-signal.onrender.com');
   const myId = crypto.randomUUID().substr(0, 8);
-
   document.getElementById('myId').textContent = myId;
   rtcCore.initialize(myId);
   rtcCore.setupSocketHandlers();
@@ -20,8 +19,7 @@ window.onload = () => {
     localVideo.srcObject = stream;
 
     document.getElementById('callActionBtn').onclick = () => {
-      // Destinatário é fixo ou baseado em lógica de emparelhamento
-      const targetId = prompt('Digite o ID do destinatário'); // opcional
+      const targetId = prompt('Digite o ID do destinatário');
       if (targetId) {
         rtcCore.startCall(targetId.trim(), stream);
       }
