@@ -134,6 +134,18 @@ body {
   color: white;
 }
 
+/* Mensagem de status */
+#statusMessage {
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+  text-align: center;
+  font-size: 18px;
+  color: white;
+  z-index: 15;
+  text-shadow: 0 0 5px rgba(0,0,0,0.7);
+}
+
 /* Responsivo para telas pequenas */
 @media (max-width: 400px) {
   .controls button {
@@ -145,9 +157,15 @@ body {
   .local-pip {
     height: 120px;
     max-width: 100px;
+  bottom: calc(60px + 60px);
   }
 
   .info-overlay {
     padding: 8px;
+  }
+
+  #statusMessage {
+    font-size: 16px;
+    bottom: 15px;
   }
 }
