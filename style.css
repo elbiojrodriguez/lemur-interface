@@ -31,9 +31,10 @@ body {
   position: absolute;
   bottom: calc(80px + 60px);
   right: 20px;
-  width: 30%;
-  max-width: 120px;
-  height: 160px;
+  width: 34.5%;
+  max-width: 138px;
+  height: 184px;
+  transform: translateX(-17%);
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 0 10px rgba(0,0,0,0.5);
@@ -56,6 +57,17 @@ body {
   height: 1px;
   background: rgba(76, 175, 80, 0.6);
   z-index: 9;
+}
+
+.ad-space {
+  position: absolute;
+  bottom: calc(80px + 60px - 0px);
+  width: 100%;
+  text-align: center;
+  color: #ccc;
+  font-size: 14px;
+  z-index: 8;
+  line-height: 1.2;
 }
 
 .controls {
@@ -104,21 +116,4 @@ input:focus {
   background: rgba(0,0,0,0.5);
   padding: 10px;
   border-radius: 0 0 10px 10px;
-}
-
-@media (max-width: 400px) {
-  .controls button {
-    width: 50px;
-    height: 50px;
-    font-size: 16px;
-  }
-
-  .local-pip {
-    height: 120px;
-    max-width: 100px;
-  }
-
-  .info-overlay {
-    padding: 8px;
-  }
 }
