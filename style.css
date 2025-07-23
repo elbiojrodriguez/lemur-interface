@@ -13,6 +13,7 @@ body {
   overflow: hidden;
   position: relative;
   font-family: Arial, sans-serif;
+  margin: 0;
 }
 
 /* Containers de vídeo */
@@ -50,6 +51,28 @@ body {
   height: 100%;
   object-fit: cover;
   transform: scaleX(-1);
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 160px;
+  height: 120px;
+  border: 2px solid white;
+  border-radius: 8px;
+  z-index: 10;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+/* Status message */
+#statusMessage {
+  position: absolute;
+  bottom: 40px;
+  width: 100%;
+  text-align: center;
+  font-size: 18px;
+  color: white;
+  font-weight: bold;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
+  z-index: 5;
 }
 
 /* Linha de horizonte abaixo do PIP */
