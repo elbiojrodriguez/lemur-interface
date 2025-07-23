@@ -9,6 +9,7 @@
 <body>
   <div class="remote-container">
     <video id="remoteVideo" autoplay playsinline></video>
+    <div id="statusMessage">Esperando resposta do dono...</div>
   </div>
 
   <div class="local-pip">
@@ -30,8 +31,6 @@
   <div class="info-overlay">
     <span id="myId"></span>
   </div>
-
-  <div id="statusMessage">Esperando resposta do dono...</div>
 
   <script src="https://lemur-signal.onrender.com/socket.io/socket.io.js"></script>
   <script type="module">
