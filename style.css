@@ -61,13 +61,25 @@ body {
 
 .ad-space {
   position: absolute;
-  bottom: calc(80px + 60px - 0px);
+  bottom: calc(80px + 60px + 14px);
   width: 100%;
   text-align: center;
   color: #ccc;
   font-size: 14px;
   z-index: 8;
   line-height: 1.2;
+}
+
+/* Destaque e copy-friendly para o ID */
+.info-overlay span#myId {
+  display: inline-block;
+  font-size: 16px;
+  font-weight: bold;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 6px 12px;
+  border-radius: 20px;
+  user-select: all;
+  cursor: pointer;
 }
 
 .controls {
@@ -116,4 +128,21 @@ input:focus {
   background: rgba(0,0,0,0.5);
   padding: 10px;
   border-radius: 0 0 10px 10px;
+}
+
+@media (max-width: 400px) {
+  .controls button {
+    width: 50px;
+    height: 50px;
+    font-size: 16px;
+  }
+
+  .local-pip {
+    height: 120px;
+    max-width: 100px;
+  }
+
+  .info-overlay {
+    padding: 8px;
+  }
 }
