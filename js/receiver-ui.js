@@ -3,6 +3,7 @@ import WebRTCCore from '../core/webrtc-core.js';
 window.onload = () => {
   const rtcCore = new WebRTCCore('https://lemur-signal.onrender.com');
   const myId = crypto.randomUUID().substr(0, 8);
+
   document.getElementById('myId').innerHTML = `Seu ID: <strong>${myId}</strong>`;
   rtcCore.initialize(myId);
   rtcCore.setupSocketHandlers();
@@ -27,12 +28,9 @@ window.onload = () => {
           remoteVideo.srcObject = remoteStream;
         });
         btn.disabled = true;
-        startTimedCycle();
       }).catch(err => {
         console.error('Erro ao acessar câmera:', err);
       });
     };
   };
-
-  // ⏳ Ciclo de cronômetro + publicidade omitido para foco nas correções do ID
 };
