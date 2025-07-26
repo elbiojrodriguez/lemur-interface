@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Seu Lemur - Recebendo Chamada</title>
+  <title>Receiver - Videochamada Mobile</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -17,26 +17,22 @@
 
   <div class="pip-horizon"></div>
 
+  <!-- ✅ Texto realocado para a faixa inferior -->
   <div class="ad-space">
-    <span class="ad-label">CONEXÃO SEGURA • LEMUR</span>
+    <span>Espaço reservado</span><br />
+    <span>para publicidade</span>
   </div>
 
   <div class="controls">
-    <button id="callActionBtn" style="display:none;">Entrar</button>
-    <button id="offBtn">✋ Encerrar</button>
+    <button id="callActionBtn" style="display:none;">Join</button>
+    <button id="offBtn">Off</button>
   </div>
 
   <div class="info-overlay">
-    <span id="myId" class="id-display">
-      <span class="loader"></span>
-      <strong>Conectando...</strong>
-    </span>
+    <span id="myId" class="id-display">Seu ID: <strong>carregando...</strong></span>
   </div>
 
-  <!-- ✅ Scripts ORIGINAIS (sem alterações) -->
   <script src="https://lemur-signal.onrender.com/socket.io/socket.io.js"></script>
-  <script src="core/internet-config.js"></script>
-  <script src="core/webrtc-core.js"></script>
-  <script src="js/receiver-ui.js"></script>
+  <script type="module" src="js/receiver-ui.js"></script>
 </body>
 </html>
