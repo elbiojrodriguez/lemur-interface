@@ -26,7 +26,6 @@
   <div class="controls">
     <button id="callActionBtn">Call</button>
     <button id="offBtn">Off</button>
-    <div id="idDisplay" style="margin-top: 10px; font-size: 14px; color: #333;"></div>
   </div>
 
   <div class="info-overlay">
@@ -37,20 +36,24 @@
   <script src="https://fireweb-sfe0.onrender.com/socket.io/socket.io.js"></script>
 
   <script type="module">
-    import { setupCallButton } from './js/caller-ui.js';
+    // Capturar o ID da URL
     const urlParams = new URLSearchParams(window.location.search);
     const targetId = urlParams.get('id');
-    if (!targetId) {
-      alert("ID de destino não encontrado na URL.");
-    } else {
-      // Exibir o ID abaixo do botão "Call"
-      const idDisplay = document.getElementById('idDisplay');
-      idDisplay.textContent = `ID do destino: ${targetId}`;
-      // Também mostrar no overlay, se quiser
-      const myIdSpan = document.getElementById('myId');
-      myIdSpan.textContent = `ID: ${targetId}`;
-      // Preparar botão de chamada
-      setupCallButton(targetId);
+
+    // Ativar a câmera automaticamente
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then(stream => {
+        document.getElementById('localVideo').srcObject = stream;
+        // Enviar chamada automaticamente
+        sendCall(targetId, stream);
+      })
+      .catch(err => {
+        alert("Permita acesso à câmera e microfone para continuar.");
+      });
+
+    function sendCall(toId, stream) {
+      // Cria peer, gera offer, envia via socket
+      // Exatamente como você já faz no botão "Call"
     }
   </script>
 
