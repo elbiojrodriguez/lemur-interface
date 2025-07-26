@@ -1,7 +1,7 @@
-import { getIceServers } from './internet-config.js';
+import { getIceServers, SIGNALING_SERVER_URL } from './internet-config.js';
 
 class WebRTCCore {
-  constructor(socketUrl) {
+  constructor(socketUrl = SIGNALING_SERVER_URL) {
     this.socket = io(socketUrl);
     this.peer = null;
     this.localStream = null;
