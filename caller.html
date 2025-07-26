@@ -32,31 +32,9 @@
     <span id="myId"></span>
   </div>
 
-  <!-- 🔄 Substituído apenas o servidor de sinalização -->
-  <script src="https://fireweb-sfe0.onrender.com/socket.io/socket.io.js"></script>
-
-  <script type="module">
-    // Capturar o ID da URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const targetId = urlParams.get('id');
-
-    // Ativar a câmera automaticamente
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-      .then(stream => {
-        document.getElementById('localVideo').srcObject = stream;
-        // Enviar chamada automaticamente
-        sendCall(targetId, stream);
-      })
-      .catch(err => {
-        alert("Permita acesso à câmera e microfone para continuar.");
-      });
-
-    function sendCall(toId, stream) {
-      // Cria peer, gera offer, envia via socket
-      // Exatamente como você já faz no botão "Call"
-    }
-  </script>
-
+  <!-- Socket.io do servidor FireWeb -->
+  <script src="https://lemur-signal.onrender.com/socket.io/socket.io.js"></script>
+  <!-- Lógica modular -->
   <script type="module" src="js/caller-ui.js"></script>
 </body>
 </html>
