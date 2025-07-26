@@ -33,7 +33,6 @@ window.onload = () => {
         btn.disabled = true;
       }).catch(err => {
         console.error('Erro ao acessar câmera:', err);
-        alert("Erro ao acessar câmera e microfone. Verifique as permissões.");
       });
     };
   };
