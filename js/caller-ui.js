@@ -20,23 +20,13 @@ window.onload = () => {
     localVideo.srcObject = stream;
 
     document.getElementById('callActionBtn').onclick = () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const targetId = urlParams.get('id');
-
-      if (!targetId) {
-        alert("ID de destino não encontrado na URL.");
-        return;
+      const targetId = prompt('Digite o ID do destinatário');
+      if (targetId) {
+        rtcCore.startCall(targetId.trim(), stream);
       }
-
-      rtcCore.startCall(targetId, stream, (remoteStream) => {
-        remoteVideo.srcObject = remoteStream;
-      });
-
-      document.getElementById('callActionBtn').disabled = true;
     };
   }).catch(err => {
     console.error('Erro ao acessar câmera:', err);
-    alert("Permita acesso à câmera e microfone para continuar.");
   });
 
   rtcCore.setRemoteStreamCallback(stream => {
