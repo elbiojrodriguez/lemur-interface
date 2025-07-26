@@ -33,6 +33,9 @@
     <span id="myId"></span>
   </div>
 
+  <!-- ✅ Corrigido para usar FireWeb -->
+  <script src="https://fireweb-sfe0.onrender.com/socket.io/socket.io.js"></script>
+
   <script type="module">
     import { setupCallButton } from './js/caller-ui.js';
 
@@ -54,5 +57,7 @@
       setupCallButton(targetId);
     }
   </script>
+
+  <script type="module" src="js/caller-ui.js"></script>
 </body>
 </html>
