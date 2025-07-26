@@ -1,4 +1,4 @@
-/* Reset mobile */
+ /* Reset mobile */
 * {
   margin: 0;
   padding: 0;
@@ -170,85 +170,4 @@ body {
   #statusMessage {
     font-size: 16px;
   }
-}
-
-/* ========================================== */
-/* === SUGESTÕES VISUAIS ADICIONADAS ABAIXO === */
-/* ========================================== */
-
-/* 1. Loader animado para estados de conexão */
-.loader {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: #4CAF50; /* Verde para combinar com o tema */
-  animation: spin 1s ease-in-out infinite;
-  margin-right: 8px;
-  vertical-align: middle;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* 2. Estilo aprimorado para área de anúncios */
-.ad-space {
-  background: rgba(0, 0, 0, 0.4);
-  padding: 6px;
-  border-radius: 12px;
-  width: auto;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 20px;
-  max-width: 90%;
-}
-
-.ad-label {
-  font-size: 0.7rem;
-  letter-spacing: 0.5px;
-  color: rgba(255, 255, 255, 0.7);
-  font-family: 'Courier New', monospace;
-  text-transform: uppercase;
-}
-
-/* 3. Efeitos de hover/active nos botões */
-.controls button {
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-
-.controls button:active {
-  transform: scale(0.92);
-}
-
-#callActionBtn:hover {
-  background: #66BB6A;
-}
-
-#offBtn:hover {
-  background: #EF5350;
-}
-
-/* 4. Feedback visual durante ações */
-.connecting #myId .loader {
-  border-top-color: #FFC107; /* Amarelo durante conexão */
-}
-
-.disconnecting #offBtn {
-  background: #E57373;
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.7; }
-  100% { opacity: 1; }
-}
-
-/* 5. Melhor legibilidade do ID */
-.id-display strong {
-  color: #4CAF50;
-  font-weight: normal;
 }
