@@ -33,26 +33,22 @@
     <span id="myId"></span>
   </div>
 
-  <!-- ✅ Corrigido para usar FireWeb -->
+  <!-- 🔄 Substituído apenas o servidor de sinalização -->
   <script src="https://fireweb-sfe0.onrender.com/socket.io/socket.io.js"></script>
 
   <script type="module">
     import { setupCallButton } from './js/caller-ui.js';
-
     const urlParams = new URLSearchParams(window.location.search);
     const targetId = urlParams.get('id');
-
     if (!targetId) {
       alert("ID de destino não encontrado na URL.");
     } else {
       // Exibir o ID abaixo do botão "Call"
       const idDisplay = document.getElementById('idDisplay');
       idDisplay.textContent = `ID do destino: ${targetId}`;
-
       // Também mostrar no overlay, se quiser
       const myIdSpan = document.getElementById('myId');
       myIdSpan.textContent = `ID: ${targetId}`;
-
       // Preparar botão de chamada
       setupCallButton(targetId);
     }
