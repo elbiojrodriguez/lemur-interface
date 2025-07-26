@@ -1,8 +1,9 @@
 import WebRTCCore from '../core/webrtc-core.js';
+import { SIGNALING_SERVER_URL } from '../core/internet-config.js';
 
 export function setupCallButton(targetIdFromURL) {
   window.onload = () => {
-    const rtcCore = new WebRTCCore('https://lemur-signal.onrender.com');
+    const rtcCore = new WebRTCCore(SIGNALING_SERVER_URL);
 
     // Gerar ID local aleatório
     const myId = crypto.randomUUID().substr(0, 8);
