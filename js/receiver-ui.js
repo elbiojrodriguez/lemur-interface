@@ -1,7 +1,8 @@
 import WebRTCCore from '../core/webrtc-core.js';
+import { SIGNALING_SERVER_URL } from '../core/internet-config.js';
 
 window.onload = () => {
-  const rtcCore = new WebRTCCore('https://lemur-signal.onrender.com');
+  const rtcCore = new WebRTCCore(SIGNALING_SERVER_URL);
   const myId = crypto.randomUUID().substr(0, 8);
   document.getElementById('myId').innerHTML = `Seu ID: <strong>${myId}</strong>`;
   rtcCore.initialize(myId);
@@ -32,6 +33,7 @@ window.onload = () => {
         btn.disabled = true;
       }).catch(err => {
         console.error('Erro ao acessar câmera:', err);
+        alert("Erro ao acessar câmera e microfone. Verifique as permissões.");
       });
     };
   };
