@@ -26,6 +26,7 @@
   <div class="controls">
     <button id="callActionBtn">Call</button>
     <button id="offBtn">Off</button>
+    <div id="idDisplay" style="margin-top: 10px; font-size: 14px; color: #333;"></div>
   </div>
 
   <div class="info-overlay">
@@ -34,24 +35,24 @@
 
   <script src="https://lemur-signal.onrender.com/socket.io/socket.io.js"></script>
   <script type="module">
-    // Capturar o ID da URL
+    import { setupCallButton } from './js/caller-ui.js';
+
     const urlParams = new URLSearchParams(window.location.search);
     const targetId = urlParams.get('id');
 
-    // Ativar a câmera automaticamente
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-      .then(stream => {
-        document.getElementById('localVideo').srcObject = stream;
-        // Enviar chamada automaticamente
-        sendCall(targetId, stream);
-      })
-      .catch(err => {
-        alert("Permita acesso à câmera e microfone para continuar.");
-      });
+    if (!targetId) {
+      alert("ID de destino não encontrado na URL.");
+    } else {
+      // Exibir o ID abaixo do botão "Call"
+      const idDisplay = document.getElementById('idDisplay');
+      idDisplay.textContent = `ID do destino: ${targetId}`;
 
-    function sendCall(toId, stream) {
-      // Cria peer, gera offer, envia via socket
-      // Exatamente como você já faz no botão "Call"
+      // Também mostrar no overlay, se quiser
+      const myIdSpan = document.getElementById('myId');
+      myIdSpan.textContent = `ID: ${targetId}`;
+
+      // Preparar botão de chamada
+      setupCallButton(targetId);
     }
   </script>
   <script type="module" src="js/caller-ui.js"></script>
