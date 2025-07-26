@@ -8,7 +8,7 @@ class WebRTCCore {
     this.remoteStreamCallback = null;
     this.currentCaller = null;
 
-    this.iceServers = getIceServers(); // Conexão global
+    this.iceServers = getIceServers();
   }
 
   initialize(userId) {
